@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emirates - Ana Portal</title>
+    <style>
+        :root {
+            --primary: #d71921;
+            --dark: #111111;
+            --darker: #0a0a0a;
+            --gold: #c5a059;
+            --light: #f5f5f5;
+            --gray: #222222;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--darker);
+            color: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--dark);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(215, 25, 33, 0.2);
+            text-align: center;
+        }
+
+        .logo-container {
+            margin-bottom: 25px;
+        }
+
+        .emirates-logo {
+            max-width: 220px;
+            height: auto;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        h1 {
+            color: var(--gold);
+            font-size: 22px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:disabled {
+            background-color: #555 !important;
+            color: #aaa !important;
+            cursor: not-allowed;
+        }
+
+        .btn-discord {
+            background-color: #5865F2;
+            color: white;
+        }
+
+        .btn-discord:hover {
+            background-color: #4752c4;
+        }
+
+        .btn-passenger {
+            background-color: var(--gold);
+            color: var(--darker);
+        }
+
+        .btn-passenger:hover:not(:disabled) {
+            background-color: #b38f4d;
+        }
+
+        .btn-pilot {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-pilot:hover {
+            background-color: #b01319;
+        }
+
+        .timer-msg {
+            color: #ffc107;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .map-section {
+            border-top: 1px solid #333;
+            padding-top: 20px;
+            margin-top: 10px;
+        }
+
+        .map-section h3 {
+            color: var(--gold);
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .airports-map {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid #444;
+            cursor: pointer;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .airports-map:hover {
+            transform: scale(1.02);
+            border-color: var(--gold);
+        }
+
+        /* Modal (Büyük Boyut İnceleme Penceresi) Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90vh;
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: var(--light);
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="logo-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Emirates_logo.svg" alt="Emirates Logo" class="emirates-logo">
+        </div>
+        
+        <h1>Emirates Portal</h1>
+
+        <div class="btn-group">
+            <a href="https://forms.gle/PZY47c8TpYWPsQEK8" target="_blank" class="btn btn-discord">Discord Linki</a>
+            
+            <div>
+                <button id="passengerBtn" onclick="openPassengerForm()" class="btn btn-passenger">Yolcu Uçuş Formu</button>
+                <div id="timerMsg" class="timer-msg"></div>
+            </div>
+
+            <a href="https://forms.gle/9oPQGqpQqLyfNmSPA" target="_blank" class="btn btn-pilot">Pilot Uçuş Formu</a>
+        </div>
+
+        <div class="map-section">
+            <h3>Türkiye Havalimanları Haritası (İncelemek için tıkla)</h3>
+            <img src="turkiyedekihavalimanları.png" alt="Türkiye Havalimanları Haritası" class="airports-map" onclick="openModal()">
+        </div>
+    </div>
+
+    <!-- Modal Görüntüleyicisi -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modalImg" src="turkiyedekihavalimanlari.png" alt="Büyük Havalimanları Haritası">
+    </div>
+
+    <script>
+        const COOLDOWN_TIME = 15 * 60 * 1000; // 15 dakika
+
+        function checkCooldown() {
+            const lastTime = localStorage.getItem('last_passenger_form_time');
+            const btn = document.getElementById('passengerBtn');
+            const timerMsg = document.getElementById('timerMsg');
+
+            if (lastTime) {
+                const elapsed = Date.now() - parseInt(lastTime);
+                if (elapsed < COOLDOWN_TIME) {
+                    const remaining = COOLDOWN_TIME - elapsed;
+                    const minutes = Math.floor(remaining / 60000);
+                    const seconds = Math.floor((remaining % 60000) / 1000);
+
+                    btn.disabled = true;
+                    timerMsg.style.display = 'block';
+                    timerMsg.innerText = `Yeni form doldurabilmek için ${minutes} dk ${seconds} sn beklemelisiniz.`;
+
+                    setTimeout(checkCooldown, 1000);
+                } else {
+                    btn.disabled = false;
+                    timerMsg.style.display = 'none';
+                    localStorage.removeItem('last_passenger_form_time');
+                }
+            }
+        }
+
+        function openPassengerForm() {
+            const lastTime = localStorage.getItem('last_passenger_form_time');
+            if (lastTime && (Date.now() - parseInt(lastTime) < COOLDOWN_TIME)) {
+                alert("15 dakikada bir form doldurabilirsiniz! Lütfen süre bitimini bekleyin.");
+                return;
+            }
+
+            localStorage.setItem('last_passenger_form_time', Date.now().toString());
+            window.open('https://forms.gle/xTqgRsCzcKGBs2Zu7', '_blank');
+            checkCooldown();
+        }
+
+        // Haritayı büyütme fonksiyonları
+        function openModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+        }
+
+        window.onload = checkCooldown;
+    </script>
+
+</body>
+</html>
